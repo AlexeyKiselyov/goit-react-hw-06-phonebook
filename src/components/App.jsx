@@ -1,45 +1,36 @@
-import { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { Phonebook } from '../components/Phonebook/Phonebook';
 import { ContactList } from '../components/ContactList/ContactList';
 import { Filter } from '../components/Filter/Filter';
 import { Section } from '../components/Section/Section';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { selectContacts } from 'redux/contacts/contactsSelectors';
+import { addContact, deleteContact } from 'redux/contacts/contactsSlice';
+import { updateFilter } from 'redux/filter/filterSlice';
+
 import { Box } from '../components/Box';
 // ==============================
 
-export const App = () => {
-  const contactsData = [
-    { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-    { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-    { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-    { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-  ];
+export const App = () => { 
 
-  const [contacts, setContacts] = useState(
-    () => JSON.parse(localStorage.getItem('contacts')) ?? contactsData
-  );
-
-  const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
+  const contacts = useSelector(selectContacts);
+  const dispatch = useDispatch();
 
   const onAddContact = newUser => {
     const uniqUserSearch = contacts.find(({ name }) => name === newUser.name);
     uniqUserSearch
       ? alert(`${uniqUserSearch.name} is already in contacts`)
-      : setContacts(prevState => [...prevState, { ...newUser, id: nanoid() }]);
+      : dispatch(addContact({ ...newUser, id: nanoid() }));
   };
 
   const onDeleteContact = e => {
     const deleteById = e.target.closest('li[data-id]').dataset.id;
-    const newContacts = contacts.filter(contact => contact.id !== deleteById);
-    setContacts(newContacts);
+    dispatch(deleteContact(deleteById));
   };
 
   const onChangeFilter = e => {
-    setFilter(e.target.value);
+    dispatch(updateFilter(e.target.value));
   };
 
   return (
@@ -60,8 +51,6 @@ export const App = () => {
       <Section title="Contacts">
         <Filter onChangeFilter={onChangeFilter} />
         <ContactList
-          contacts={contacts}
-          filter={filter}
           onDeleteContact={onDeleteContact}
         />
       </Section>

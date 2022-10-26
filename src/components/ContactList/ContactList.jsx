@@ -1,8 +1,17 @@
 import PropTypes from 'prop-types';
 import { VscTrash } from 'react-icons/vsc';
+
+import { useSelector } from 'react-redux';
+import { selectContacts } from 'redux/contacts/contactsSelectors';
+import { selectFilter } from 'redux/filter/filterSelectors';
+
 import { Contact, Ul, Button } from './ContactList.styled';
 // ===========================
-export const ContactList = ({ contacts, filter, onDeleteContact }) => {
+
+export const ContactList = ({ onDeleteContact }) => {
+  const contacts = useSelector(selectContacts);
+  const filter = useSelector(selectFilter);
+
   const filterContacts = contacts.filter(({ name }) =>
     name.toLowerCase().includes(filter.toLowerCase())
   );
@@ -43,12 +52,5 @@ export const ContactList = ({ contacts, filter, onDeleteContact }) => {
 };
 
 ContactList.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-      id: PropTypes.string.isRequired,
-    })
-  ),
-  filter: PropTypes.string,
+  onDeleteContact: PropTypes.func.isRequired,
 };
